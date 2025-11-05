@@ -1,6 +1,10 @@
 # LogHelper
 enable `qInfo qDebug qWarning etc.` sync into `.log` file
 
+## how to use
+1. add `LogHelper/loghelper.h` in the `main.cc`
+2. add `qInstallMessageHandler(customMessageHandler);` behind to the line `QApplication a(argc, argv);` which in `main` function
+
 # QssHelper
 load `qss` file
 
