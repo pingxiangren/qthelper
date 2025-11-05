@@ -17,11 +17,13 @@ INCLUDEPATH += $$QTHELPER_BASE_DIR
 # 4. 添加头文件
 # 确保所有公共头文件都被正确识别
 HEADERS += \
-    $$QTHELPER_BASE_DIR/LogHelper/loghelper.h
+    $$QTHELPER_BASE_DIR/LogHelper/loghelper.h \
+    $$QTHELPER_BASE_DIR/QssHelper/qsshelper.h
 
 # 5. 添加源文件
 SOURCES += \
-    $$QTHELPER_BASE_DIR/LogHelper/loghelper.cc
+    $$QTHELPER_BASE_DIR/LogHelper/loghelper.cc \
+    $$QTHELPER_BASE_DIR/QssHelper/qsshelper.cc
 
 # 6. 配置构建模式
 # 确保文件被正确编译
