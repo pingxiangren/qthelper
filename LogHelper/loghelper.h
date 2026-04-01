@@ -2,6 +2,8 @@
 #define LOGHELPER_H
 
 #include <QFile>
+#include <QString>
+#include <QtGlobal>   // QtMsgType, QMessageLogContext
 
 /**
  * @brief 检查日志文件大小并执行轮转（重命名旧文件，创建新文件）。
