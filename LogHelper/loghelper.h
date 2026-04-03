@@ -11,6 +11,10 @@
  */
 void checkAndRotateLogFile(QFile &file);
 
+void installAppMessageHandler();
+
+QString appLogFilePath();
+
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 #endif
