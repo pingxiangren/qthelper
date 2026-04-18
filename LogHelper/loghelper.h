@@ -11,6 +11,8 @@
  */
 void checkAndRotateLogFile(QFile &file);
 
+void setAppLogDirectory(const QString& logDirectory);
+
 void installAppMessageHandler();
 
 QString appLogFilePath();

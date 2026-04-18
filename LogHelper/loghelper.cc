@@ -3,11 +3,10 @@
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
+#include <QFileInfo>
 #include <QMutex>
 #include <QTextStream>
 #include <QThread>
-
-#include "src/common/app_paths.h"
 
 const QString LOG_PATH = "log";
 const QString LOG_FILE_BASE_NAME = "application.log";
@@ -48,8 +47,17 @@ QString CategoryName(const QMessageLogContext& context) {
     return QString::fromUtf8(context.category);
 }
 
+QString& ConfiguredLogDirectory() {
+    static QString logDirectory = LOG_PATH;
+    return logDirectory;
+}
+
+QString CurrentLogDirectory() {
+    return ConfiguredLogDirectory().trimmed().isEmpty() ? QString(LOG_PATH) : ConfiguredLogDirectory();
+}
+
 void EnsureLogDirectoryExists() {
-    QDir().mkpath(hm::paths::kLogDir);
+    QDir().mkpath(CurrentLogDirectory());
 }
 
 int MessagePriority(QtMsgType type) {
@@ -95,9 +103,18 @@ int MinimumPriority() {
 
 }  // namespace
 
+void setAppLogDirectory(const QString& logDirectory) {
+    QMutexLocker lock(logMutex());
+    ConfiguredLogDirectory() = logDirectory.trimmed().isEmpty() ? QString(LOG_PATH) : QDir::cleanPath(logDirectory);
+    QFile& logFile = *globalLogFile();
+    if (logFile.isOpen()) {
+        logFile.close();
+    }
+}
+
 QString appLogFilePath() {
     EnsureLogDirectoryExists();
-    return QDir(hm::paths::kLogDir).filePath(LOG_FILE_BASE_NAME);
+    return QDir(CurrentLogDirectory()).filePath(LOG_FILE_BASE_NAME);
 }
 
 void checkAndRotateLogFile(QFile &file) {
@@ -106,9 +123,9 @@ void checkAndRotateLogFile(QFile &file) {
     if (file.isOpen() && file.size() > MAX_LOG_SIZE_BYTES) {
         file.close();
 
-        QString currentFileName = QDir(hm::paths::kLogDir).filePath(LOG_FILE_BASE_NAME);
+        QString currentFileName = QDir(CurrentLogDirectory()).filePath(LOG_FILE_BASE_NAME);
         QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
-        QString backupFileName = QDir(hm::paths::kLogDir).filePath(
+        QString backupFileName = QDir(CurrentLogDirectory()).filePath(
             LOG_FILE_BASE_NAME + "." + timestamp + ".bak");
 
         if (QFile::rename(currentFileName, backupFileName)) {
@@ -119,7 +136,7 @@ void checkAndRotateLogFile(QFile &file) {
     }
 
     if (!file.isOpen()) {
-        QString currentFileName = QDir(hm::paths::kLogDir).filePath(LOG_FILE_BASE_NAME);
+        QString currentFileName = QDir(CurrentLogDirectory()).filePath(LOG_FILE_BASE_NAME);
         file.setFileName(currentFileName);
 
         if (!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
